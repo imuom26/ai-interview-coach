@@ -8,14 +8,16 @@ def get_head_pose(landmarks, w, h):
     chin = landmarks[152]
     left_eye = landmarks[33]
     right_eye = landmarks[263]
-    mouth = landmarks[13]
+    left_mouth = landmarks[61]
+    right_mouth = landmarks[291]
 
     image_points = np.array([
         (nose.x * w, nose.y * h),
         (chin.x * w, chin.y * h),
         (left_eye.x * w, left_eye.y * h),
         (right_eye.x * w, right_eye.y * h),
-        (mouth.x * w, mouth.y * h)
+        (left_mouth.x * w, left_mouth.y * h),
+        (right_mouth.x * w, right_mouth.y * h)
     ], dtype="double")
 
     model_points = np.array([
@@ -23,7 +25,8 @@ def get_head_pose(landmarks, w, h):
         (0.0, -330.0, -65.0),
         (-225.0, 170.0, -135.0),
         (225.0, 170.0, -135.0),
-        (0.0, -150.0, -125.0)
+        (-150.0, -150.0, -125.0),
+        (150.0, -150.0, -125.0)
     ])
 
     focal_length = w
