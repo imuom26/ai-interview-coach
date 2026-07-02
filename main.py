@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+from modules.eye_contact import *
 
 # Setup MediaPipe
 mp_face = mp.solutions.face_mesh
@@ -29,13 +30,47 @@ while cap.isOpened():
     # Detect face landmarks
     results = face_mesh.process(rgb)
 
-    # Draw landmarks
+    # If a face is detected
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
+
+            # Get frame size
+            h, w, _ = frame.shape
+
+            # Get all landmarks
+            landmarks = face_landmarks.landmark
+
+            # Draw face mesh
             mp_draw.draw_landmarks(
                 frame,
                 face_landmarks,
                 mp_face.FACEMESH_CONTOURS
+            )
+
+            # =========================
+            # LEFT IRIS CENTER
+            # =========================
+            left_iris_x = 0
+            left_iris_y = 0
+
+            for idx in LEFT_IRIS:
+                left_iris_x += landmarks[idx].x
+                left_iris_y += landmarks[idx].y
+
+            left_iris_x /= len(LEFT_IRIS)
+            left_iris_y /= len(LEFT_IRIS)
+
+            # Convert normalized coordinates to pixels
+            left_iris_px = int(left_iris_x * w)
+            left_iris_py = int(left_iris_y * h)
+
+            # Draw green dot on iris center
+            cv2.circle(
+                frame,
+                (left_iris_px, left_iris_py),
+                5,
+                (0, 255, 0),
+                -1
             )
 
     # Show webcam
@@ -45,5 +80,6 @@ while cap.isOpened():
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Cleanup
 cap.release()
 cv2.destroyAllWindows()
