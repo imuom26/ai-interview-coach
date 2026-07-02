@@ -24,7 +24,7 @@ while cap.isOpened():
     # Mirror effect
     frame = cv2.flip(frame, 1)
 
-    # Convert BGR -> RGB
+    # Convert BGR to RGB
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Detect face landmarks
@@ -71,6 +71,29 @@ while cap.isOpened():
                 5,
                 (0, 255, 0),
                 -1
+            )
+
+            # =========================
+            # EYE RATIO
+            # =========================
+            left_corner_x = landmarks[LEFT_EYE_LEFT].x * w
+            right_corner_x = landmarks[LEFT_EYE_RIGHT].x * w
+
+            eye_ratio = (
+                left_iris_px - left_corner_x
+            ) / (
+                right_corner_x - left_corner_x
+            )
+
+            # Display ratio
+            cv2.putText(
+                frame,
+                f"Ratio: {eye_ratio:.2f}",
+                (20, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0),
+                2
             )
 
     # Show webcam
