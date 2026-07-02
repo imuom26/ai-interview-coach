@@ -15,6 +15,9 @@ face_mesh = mp_face.FaceMesh(
 # Open webcam
 cap = cv2.VideoCapture(0)
 
+eye_contact_frames = 0
+total_frames = 0
+
 while cap.isOpened():
     ret, frame = cap.read()
 
@@ -90,6 +93,15 @@ while cap.isOpened():
                 ) / eye_width
             else:
                 eye_ratio = 0
+            
+            total_frames += 1
+
+            if -2.5 < eye_ratio < 2.5:
+               eye_contact_frames += 1
+
+            eye_contact_percent = (
+                eye_contact_frames / total_frames
+            ) * 100
 
             # Display ratio
             cv2.putText(
@@ -110,6 +122,16 @@ while cap.isOpened():
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.7,
                 (255, 255, 0),
+                2
+            )
+
+            cv2.putText(
+                frame,
+                f"Eye Contact: {eye_contact_percent:.0f}%",
+                (20, 120),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 255),
                 2
             )
 
