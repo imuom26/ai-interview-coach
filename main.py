@@ -24,20 +24,19 @@ while cap.isOpened():
     # Mirror effect
     frame = cv2.flip(frame, 1)
 
-    # Convert BGR to RGB
+    # Convert BGR -> RGB
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Detect face landmarks
     results = face_mesh.process(rgb)
 
-    # If a face is detected
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
 
-            # Get frame size
+            # Frame size
             h, w, _ = frame.shape
 
-            # Get all landmarks
+            # All landmarks
             landmarks = face_landmarks.landmark
 
             # Draw face mesh
@@ -48,26 +47,26 @@ while cap.isOpened():
             )
 
             # =========================
-            # LEFT IRIS CENTER
+            # RIGHT IRIS CENTER
             # =========================
-            left_iris_x = 0
-            left_iris_y = 0
+            iris_x = 0
+            iris_y = 0
 
-            for idx in LEFT_IRIS:
-                left_iris_x += landmarks[idx].x
-                left_iris_y += landmarks[idx].y
+            for idx in RIGHT_IRIS:
+                iris_x += landmarks[idx].x
+                iris_y += landmarks[idx].y
 
-            left_iris_x /= len(LEFT_IRIS)
-            left_iris_y /= len(LEFT_IRIS)
+            iris_x /= len(RIGHT_IRIS)
+            iris_y /= len(RIGHT_IRIS)
 
-            # Convert normalized coordinates to pixels
-            left_iris_px = int(left_iris_x * w)
-            left_iris_py = int(left_iris_y * h)
+            # Convert to pixels
+            iris_px = int(iris_x * w)
+            iris_py = int(iris_y * h)
 
-            # Draw green dot on iris center
+            # Draw green dot
             cv2.circle(
                 frame,
-                (left_iris_px, left_iris_py),
+                (iris_px, iris_py),
                 5,
                 (0, 255, 0),
                 -1
@@ -76,14 +75,21 @@ while cap.isOpened():
             # =========================
             # EYE RATIO
             # =========================
-            left_corner_x = landmarks[LEFT_EYE_LEFT].x * w
-            right_corner_x = landmarks[LEFT_EYE_RIGHT].x * w
 
-            eye_ratio = (
-                left_iris_px - left_corner_x
-            ) / (
-                right_corner_x - left_corner_x
-            )
+            corner1 = landmarks[RIGHT_EYE_LEFT].x * w
+            corner2 = landmarks[RIGHT_EYE_RIGHT].x * w
+
+            left_corner_x = min(corner1, corner2)
+            right_corner_x = max(corner1, corner2)
+
+            eye_width = right_corner_x - left_corner_x
+
+            if eye_width != 0:
+                eye_ratio = (
+                    iris_px - left_corner_x
+                ) / eye_width
+            else:
+                eye_ratio = 0
 
             # Display ratio
             cv2.putText(
@@ -93,6 +99,17 @@ while cap.isOpened():
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (0, 255, 0),
+                2
+            )
+
+            # Debug info
+            cv2.putText(
+                frame,
+                f"IrisX:{iris_px}",
+                (20, 80),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 0),
                 2
             )
 
