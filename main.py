@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 from modules.eye_contact import *
+from modules.head_pose import *
 
 # Setup MediaPipe
 mp_face = mp.solutions.face_mesh
@@ -102,6 +103,12 @@ while cap.isOpened():
             eye_contact_percent = (
                 eye_contact_frames / total_frames
             ) * 100
+            
+            rotation_vector, translation_vector = get_head_pose(
+                landmarks,
+                w,
+                h
+          )
 
             # Display ratio
             cv2.putText(
@@ -134,6 +141,26 @@ while cap.isOpened():
                 (0, 255, 255),
                 2
             )
+            
+            cv2.putText(
+                frame,
+                f"Head Rot X:{rotation_vector[0][0]:.2f}",
+                (20, 160),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 0),
+                2
+            )
+
+            cv2.putText(
+                frame,
+                f"Head Rot Y:{rotation_vector[1][0]:.2f}",
+                (20, 200),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 0),
+                2
+         )
 
     # Show webcam
     cv2.imshow("AI Interview Coach", frame)
