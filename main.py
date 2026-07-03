@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 from modules.eye_contact import *
 from modules.head_pose import *
+from scorer import *
 
 # Setup MediaPipe
 mp_face = mp.solutions.face_mesh
@@ -221,12 +222,25 @@ while cap.isOpened():
 
         print("\n========================")
         print("AI INTERVIEW REPORT")
+        attention_score = calculate_attention_score(
+            eye_contact_percent,
+            look_away_count
+     )
+
+        print("\n========================")
+        print("AI INTERVIEW REPORT")
         print("========================")
         print(f"Duration: {minutes:02}:{seconds:02}")
         print(f"Eye Contact: {eye_contact_percent:.0f}%")
         print(f"Looked Away: {look_away_count} times")
-        print("========================")
-
+        print(f"Attention Score: {attention_score}%")
+        if attention_score >= 85:
+            print("Feedback: Excellent focus and eye contact.")
+        elif attention_score >= 70:
+            print("Feedback: Good attention. Try to look away less.")
+        else:
+            print("Feedback: Practice maintaining eye contact.")
+      
 # Cleanup
 cap.release()
 cv2.destroyAllWindows()
