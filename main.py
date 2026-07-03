@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import time
 from modules.eye_contact import *
 from modules.head_pose import *
 
@@ -15,6 +16,11 @@ face_mesh = mp_face.FaceMesh(
 
 # Open webcam
 cap = cv2.VideoCapture(0)
+
+start_time = time.time()
+
+look_away_count = 0
+looking_away = False
 
 eye_contact_frames = 0
 total_frames = 0
@@ -95,6 +101,20 @@ while cap.isOpened():
             else:
                 eye_ratio = 0
             
+            # =========================
+            # LOOK-AWAY WARNING
+            # =========================
+            warning = ""
+
+            if eye_ratio < -2.0:
+                warning = "Please look at the camera"
+
+                if not looking_away:
+                    look_away_count += 1
+                    looking_away = True
+            else:
+                looking_away = False
+            
             total_frames += 1
 
             if -2.5 < eye_ratio < 2.5:
@@ -161,6 +181,31 @@ while cap.isOpened():
                 (255, 255, 0),
                 2
          )
+            elapsed = int(time.time() - start_time)
+
+            minutes = elapsed // 60
+            seconds = elapsed % 60
+
+            cv2.putText(
+                frame,
+                f"Duration: {minutes:02}:{seconds:02}",
+                (20, 240),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (255, 255, 255),
+                2
+            )
+
+            if warning != "":
+                cv2.putText(
+                    frame,
+                    warning,
+                    (20, 280),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 0, 255),
+                    2
+     )
 
     # Show webcam
     cv2.imshow("AI Interview Coach", frame)
@@ -168,6 +213,19 @@ while cap.isOpened():
     # Press q to quit
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+           
+        elapsed = int(time.time() - start_time)
+
+        minutes = elapsed // 60
+        seconds = elapsed % 60
+
+        print("\n========================")
+        print("AI INTERVIEW REPORT")
+        print("========================")
+        print(f"Duration: {minutes:02}:{seconds:02}")
+        print(f"Eye Contact: {eye_contact_percent:.0f}%")
+        print(f"Looked Away: {look_away_count} times")
+        print("========================")
 
 # Cleanup
 cap.release()
