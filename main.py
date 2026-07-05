@@ -4,6 +4,12 @@ import time
 from modules.eye_contact import *
 from modules.head_pose import *
 from scorer import *
+from modules.audio import record_audio
+from modules.transcriber import transcribe_audio
+from modules.filler_words import count_filler_words
+from scorer import calculate_communication_score
+from modules.interview_report import print_report
+from modules.interview_session import start_audio_thread
 
 # Setup MediaPipe
 mp_face = mp.solutions.face_mesh
@@ -17,6 +23,7 @@ face_mesh = mp_face.FaceMesh(
 
 # Open webcam
 cap = cv2.VideoCapture(0)
+audio_thread = start_audio_thread(30)
 
 start_time = time.time()
 
@@ -244,3 +251,31 @@ while cap.isOpened():
 # Cleanup
 cap.release()
 cv2.destroyAllWindows()
+audio_thread.join()
+record_audio(10)
+
+text = transcribe_audio()
+
+print("\nTRANSCRIPTION:")
+print(text)
+
+counts, total = count_filler_words(text)
+
+print("\nFILLER WORDS:")
+print(counts)
+
+communication_score = (
+    calculate_communication_score(total)
+)
+
+print(
+    f"\nCommunication Score: "
+    f"{communication_score}%"
+)
+print_report(
+    duration="00:10",
+    eye_contact=100,
+    attention_score=90,
+    filler_total=total,
+    communication_score=communication_score
+)

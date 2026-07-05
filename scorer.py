@@ -12,3 +12,21 @@ def calculate_attention_score(
         score = 0
 
     return round(score)
+
+def calculate_communication_score(
+    filler_count
+):
+    score = 100 - (filler_count * 5)
+
+    if score < 0:
+        score = 0
+
+    return score
+
+def calculate_overall_score(
+    attention_score,
+    communication_score
+):
+    return round(
+        (attention_score + communication_score) / 2
+    )
