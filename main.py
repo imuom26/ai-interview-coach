@@ -10,6 +10,7 @@ from modules.filler_words import count_filler_words
 from scorer import calculate_communication_score
 from modules.interview_report import print_report
 from modules.interview_session import start_audio_thread
+import json
 
 # Setup MediaPipe
 mp_face = mp.solutions.face_mesh
@@ -272,10 +273,31 @@ print(
     f"\nCommunication Score: "
     f"{communication_score}%"
 )
+eye_contact_percent = 100
+attention_score = 90
+
 print_report(
     duration="00:10",
-    eye_contact=100,
-    attention_score=90,
+    eye_contact=eye_contact_percent,
+    attention_score=attention_score,
     filler_total=total,
     communication_score=communication_score
 )
+
+overall_score = round(
+    (attention_score + communication_score) / 2
+)
+
+results = {
+    "eye_contact": eye_contact_percent,
+    "attention_score": attention_score,
+    "communication_score": communication_score,
+    "overall_score": overall_score,
+    "filler_words": total,
+    "duration": "00:10"
+}
+
+with open("results.json", "w") as file:
+    json.dump(results, file, indent=4)
+
+print("Results saved.")
